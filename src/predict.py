@@ -6,7 +6,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
-HERE = Path(__file__).resolve().parent
+from paths import MODELS_DIR, EXAMPLES_DIR
 
 def predict(payload, bundle):
     if not isinstance(payload, dict):
@@ -40,9 +40,9 @@ def predict(payload, bundle):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--input', type=Path, default=HERE/'sample_input.json')
+    parser.add_argument('--input', type=Path, default=EXAMPLES_DIR/'sample_input.json')
     args = parser.parse_args()
-    bundle = joblib.load(HERE/'model.joblib')
+    bundle = joblib.load(MODELS_DIR/'model.joblib')
     try:
         output = predict(json.loads(args.input.read_text(encoding='utf-8-sig')), bundle)
     except (ValueError, TypeError) as error:

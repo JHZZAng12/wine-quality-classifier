@@ -12,7 +12,7 @@ Cortez, P., Cerdeira, A., Almeida, F., Matos, T., & Reis, J. (2009). *Wine Quali
 
 ## 데이터를 다시 받는 방법
 
-원본 CSV는 저장소에 올리지 않았습니다. `python train.py`를 실행하면 공식 UCI ZIP 파일에서 필요한 CSV를 내려받아 `data/`에 보관합니다. 그다음 실행부터는 받아 둔 파일을 사용합니다.
+원본 CSV는 저장소에 올리지 않았습니다. `python src/train.py`를 실행하면 공식 UCI ZIP 파일에서 필요한 CSV를 내려받아 `data/`에 보관합니다. 그다음 실행부터는 받아 둔 파일을 사용합니다.
 
 ## 이용 조건
 

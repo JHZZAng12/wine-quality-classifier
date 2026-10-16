@@ -5,15 +5,16 @@ import numpy as np
 import pandas as pd
 import pytest
 from predict import predict
-from train import load_data, split_data, HERE, CATEGORICAL
+from train import load_data, split_data, CATEGORICAL
+from paths import REPORTS_DIR, MODELS_DIR, EXAMPLES_DIR
 
 @pytest.fixture(scope='module')
 def bundle():
-    return joblib.load(HERE/'model.joblib')
+    return joblib.load(MODELS_DIR/'model.joblib')
 
 @pytest.fixture
 def sample():
-    return json.loads((HERE/'sample_input.json').read_text(encoding='utf-8'))
+    return json.loads((EXAMPLES_DIR/'sample_input.json').read_text(encoding='utf-8'))
 
 def test_inference_matches_saved_pipeline(bundle, sample):
     result = predict(sample, bundle)
@@ -43,8 +44,8 @@ def test_no_feature_overlap_between_splits():
     assert not sets[1] & sets[2]
 
 def test_confusion_counts_and_manifest():
-    r = json.loads((HERE/'metrics.json').read_text(encoding='utf-8'))
-    manifest = pd.read_csv(HERE/'split_manifest.csv')
+    r = json.loads((REPORTS_DIR/'metrics.json').read_text(encoding='utf-8'))
+    manifest = pd.read_csv(REPORTS_DIR/'split_manifest.csv')
     assert manifest.source_row.is_unique
     assert int(np.array(r['confusion_matrix']).sum()) == r['split_sizes']['test']
     assert manifest.groupby('split').size().to_dict() == r['split_sizes']
