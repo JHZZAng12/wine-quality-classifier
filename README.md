@@ -1,59 +1,81 @@
-# 소믈리에가 되어라! 화학 성분 기반 와인 품질 판별
+# 소믈리에가 되어라! 성분표로 알아보는 와인 품질
 
-Python · scikit-learn · 이진 분류 · 재현 가능한 학습 파이프라인
+이 프로젝트에서는 알코올 도수, 산도, 당도 같은 성분으로 레드 와인의 품질을 구분해 봤습니다. 와인마다 주어진 11개 성분을 모델에 입력하고, 품질 점수가 **7점 이상이면 우수**, 나머지는 일반으로 분류했습니다. 여기서 7점은 실습을 위해 정한 기준입니다.
 
-11개 물리화학 성분으로 레드 와인이 우수한 품질인지 예측합니다. `quality >= 7`을 우수(1), 나머지를 일반(0)으로 정의합니다.
+## 결과부터 살펴보면
 
-## 먼저 볼 자료
-- **[성능 평가서 및 오답 노트](evaluation.md)**: 실제 실험 결과, 모델 비교, 혼동 행렬, 한계
-- **[분석 노트북](analysis.ipynb)**: 데이터 확인부터 재학습, 성능 읽기, 예측까지
-- **[데이터 출처](DATA_SOURCES.md)**: 원저작자, UCI 다운로드, CC BY 4.0
+272개의 와인으로 확인했을 때 정확도는 87.50%였습니다. 다만 일반 와인이 많은 데이터여서 이 숫자만 보기는 어렵습니다. 실제 우수 와인을 찾아낸 비율은 59.46%, 우수하다고 추천한 와인이 실제로 우수했던 비율은 53.66%였습니다.
 
-## 실험 결과
-선택 모델: **tree_depth_5** · 임계값 **0.30** · 테스트 272건
+검증 자료에서 고른 모델은 **의사결정나무 · 깊이 5**, 최종 판단에 쓴 임계값은 **0.30**입니다. 임계값은 예측 확률이 얼마 이상일 때 우수 와인로 판단할지를 정하는 기준입니다.
 
 | 정확도 | 정밀도 | 재현율 | F1 | AP |
 | --- | --- | --- | --- | --- |
 | 87.50% | 53.66% | 59.46% | 0.5641 | 0.4453 |
 
-![혼동 행렬](confusion_matrix.png)
+![실제 결과와 예측 결과를 비교한 혼동 행렬](confusion_matrix.png)
 
-## 학습 목표와 구현
-StandardScaler 전후 LogisticRegression 비교, DecisionTreeClassifier, 정확도·정밀도·재현율·F1·혼동 행렬을 학습합니다.
-학습/검증/테스트를 분리하고, 전처리는 학습 데이터로만 적합합니다. 정확도 외에 불균형에 적합한 AP를 사용하며, 모델과 임계값은 검증 세트에서 선택합니다.
+실험 조건과 수치의 해석, 틀린 사례는 **[분석 보고서](evaluation.md)**에 자세히 적었습니다.
 
-## 빠른 실행
-Python **3.12** 기준입니다. 저장소 루트에서 실행합니다.
+## 이 과정에서 다룬 내용
+
+성분마다 숫자 범위가 다르다는 점에서 시작했습니다. `StandardScaler`로 범위를 맞추기 전후에 로지스틱 회귀(`LogisticRegression`)의 결과가 어떻게 달라지는지 비교했습니다. 의사결정나무(`DecisionTreeClassifier`)도 함께 학습하고, 정확도뿐 아니라 정밀도·재현율·F1과 혼동 행렬로 틀린 예측까지 살펴봤습니다.
+
+학습·검증·테스트 자료는 따로 나눴습니다. 학습 자료로 모델을 만들고 검증 자료로 모델과 임계값을 고른 뒤, 테스트 자료는 마지막 확인에만 사용했습니다. 일반 사례가 많다는 점을 고려해, 모델을 고를 때는 정확도 대신 AP를 기준으로 삼았습니다.
+
+## 자료를 읽는 순서
+
+1. **[분석 보고서](evaluation.md)**에서 전체 흐름과 결과를 먼저 읽어 보세요.
+2. **[실습 노트북](analysis.ipynb)**에서는 데이터를 불러오는 단계부터 예측까지 직접 따라갈 수 있습니다. 실행 결과도 함께 저장했습니다.
+3. **[입력 항목 안내](FEATURES.md)**와 **[데이터 출처](DATA_SOURCES.md)**에서 각 열의 뜻과 이용 조건을 확인할 수 있습니다.
+
+## 내 데이터로 예측해 보기
+
+Python **3.12**를 기준으로 실행했습니다. 먼저 이 저장소를 내려받고, 파일이 들어 있는 폴더에서 가상환경을 만들어 주세요.
 
 ```bash
 python -m venv .venv
-# Windows PowerShell
+```
+
+Windows PowerShell에서는 다음 명령으로 가상환경을 켭니다.
+
+```powershell
 .venv\Scripts\Activate.ps1
-# macOS / Linux
-# source .venv/bin/activate
+```
+
+macOS나 Linux에서는 `source .venv/bin/activate`를 실행하면 됩니다. 필요한 패키지를 설치한 뒤 예제 입력으로 예측해 보세요.
+
+```bash
 python -m pip install -r requirements.txt
 python predict.py --input sample_input.json
+```
+
+`sample_input.json`을 복사해서 성분 값을 바꾸면 다른 입력도 시험해 볼 수 있습니다. 학습한 모델이 `model.joblib`에 들어 있어서 **예측만 할 때는 데이터를 다시 내려받지 않아도 됩니다.** 입력 항목 이름은 예제와 같아야 합니다. 빠진 항목이나 잘못된 숫자가 있으면 어떤 부분을 고쳐야 하는지 안내합니다.
+
+출력의 `label`은 예측 결과이고, `positive_probability`는 우수 와인일 것으로 모델이 계산한 확률입니다. `outside_training_range`에는 학습 때 보았던 수치 범위를 벗어난 항목이 표시됩니다. 확률은 별도로 보정하지 않은 값이므로 확정적인 판단으로 받아들이지는 마세요.
+
+## 처음부터 다시 학습해 보기
+
+```bash
 python train.py
 python -m pytest -q
 ```
 
-`model.joblib`이 포함되어 있어 예측은 데이터 다운로드 없이 실행됩니다. 재학습 시 UCI 데이터에 접근할 인터넷 연결이 필요합니다. 모델에는 전처리와 임계값이 함께 들어 있습니다. Jupyter에서 노트북을 실행하려면 `python -m pip install notebook ipykernel`을 추가로 실행합니다.
+재학습할 때는 공식 UCI 사이트에서 데이터를 받기 때문에 인터넷 연결이 필요합니다. 보고서·차트·모델 파일도 함께 다시 만듭니다. 노트북으로 따라가려면 `python -m pip install notebook ipykernel`을 추가로 실행해 주세요.
 
-## 입력과 출력
-`sample_input.json`을 복사해 값을 바꿉니다. 입력 열 이름은 예제와 정확히 일치해야 하며, 추가/누락 열·비수치·음수·NaN은 거부합니다. 범주 코드는 문자열로 정규화하고, 학습에 없던 범주는 OneHotEncoder가 처리합니다. 학습 수치 범위를 벗어나는 열은 출력에 표시합니다.
-출력에는 `label`, `prediction`, `positive_probability`, `threshold`, `outside_training_range`가 포함됩니다. 확률은 보정되지 않은 모델 출력입니다.
+그래프를 새로 그릴 때는 맑은 고딕, AppleGothic, 나눔고딕 또는 Noto Sans CJK KR 중 설치된 글꼴을 사용합니다. 글자가 네모로 보인다면 한글 글꼴을 설치한 뒤 다시 실행해 주세요. 저장소에 올린 그래프는 한글 글꼴로 생성했습니다.
 
-## 파일 안내
-| 파일 | 용도 |
+## 파일을 찾을 때
+
+| 보고 싶은 내용 | 파일 |
 | --- | --- |
-| `train.py`, `predict.py` | 데이터 다운로드·학습·평가 / JSON 입력 추론 |
-| `analysis.ipynb` | 단계별 실습 |
-| `model.joblib`, `sample_input.json` | 학습된 모델 / 입력 예시 |
-| `evaluation.md`, `metrics.json` | 해설 / 기계가 읽는 실험 결과 |
-| `model_comparison.csv`, `validation_thresholds.csv` | 후보 비교 / 검증 임계값 실험 |
-| `misclassified.csv`, `split_manifest.csv` | 오답 전체 / 분할 재현 |
-| `feature_importance.csv`, `feature_summary.csv`, `*.png` | 중요도·통계·시각화 |
-| `test_project.py` | 추론·누수 방지·입력 검증 테스트 |
-| `requirements.txt`, `requirements-lock.txt` | 직접 의존성 / 실험 패키지 버전 |
+| 분석 흐름과 결과 해석 | `evaluation.md`, `analysis.ipynb` |
+| 학습 코드와 한국어 보고서 생성 코드 | `train.py`, `reporting.py` |
+| 입력값으로 예측하는 코드 | `predict.py`, `sample_input.json` |
+| 학습된 모델 | `model.joblib` |
+| 성능 수치와 모델 비교 | `metrics.json`, `model_comparison.csv` |
+| 틀린 사례와 데이터 분할 기록 | `misclassified.csv`, `split_manifest.csv` |
+| 입력 항목의 통계와 중요도 | `feature_summary.csv`, `feature_importance.csv`, `*.png` |
+| 임계값을 바꿔 본 기록 | `validation_thresholds.csv` |
+| 실행 검증과 패키지 버전 | `test_project.py`, `requirements.txt`, `requirements-lock.txt` |
 
-저장 모델은 이 저장소의 신뢰할 수 있는 파일만 로드하세요. joblib은 Python 객체를 역직렬화합니다. 코드 라이선스는 MIT이며 원본 데이터와 그 파생 데이터는 별도의 CC BY 4.0 출처 고지를 따릅니다.
+CSV·JSON의 영문 열 이름은 코드에서 읽는 이름이므로 그대로 두었습니다. 보고서와 노트북의 표에는 한국어 설명을 붙였습니다. 코드는 MIT 라이선스이며, 데이터와 그 파생 결과는 [출처 안내](DATA_SOURCES.md)의 CC BY 4.0 조건을 따릅니다. `joblib` 파일은 신뢰할 수 있는 출처의 것만 불러와 주세요.

@@ -1,8 +1,7 @@
-"""Validate a JSON feature row and apply the saved preprocessing/model pipeline."""
+"""JSON 파일의 입력값을 확인한 뒤 저장된 모델로 예측합니다."""
 import argparse
 import json
 from pathlib import Path
-import warnings
 import joblib
 import numpy as np
 import pandas as pd
@@ -11,25 +10,25 @@ HERE = Path(__file__).resolve().parent
 
 def predict(payload, bundle):
     if not isinstance(payload, dict):
-        raise ValueError('Input must be a JSON object with feature names.')
+        raise ValueError('입력은 항목 이름과 값이 짝을 이루는 JSON 객체여야 합니다.')
     expected = set(bundle['features'])
     if set(payload) != expected:
-        raise ValueError(f'Missing: {sorted(expected-set(payload))}; unexpected: {sorted(set(payload)-expected)}')
+        raise ValueError(f'빠진 항목: {sorted(expected-set(payload))}; 예제에 없는 항목: {sorted(set(payload)-expected)}')
     row = dict(payload)
     outside = []
     for c in bundle['features']:
         if row[c] is None:
-            raise ValueError(f'{c}: null is not accepted in inference input.')
+            raise ValueError(f'{c}: 값이 비어 있습니다. 예제처럼 값을 입력해 주세요.')
         if c in bundle['categorical']:
             if not isinstance(row[c], (str, int, bool)):
-                raise ValueError(f'{c}: expected string/integer/boolean category.')
+                raise ValueError(f'{c}: 문자열, 정수 또는 참·거짓으로 범주를 입력해 주세요.')
             row[c] = str(row[c])
         else:
             if isinstance(row[c], bool) or not isinstance(row[c], (int, float)):
-                raise ValueError(f'{c}: expected numeric value.')
+                raise ValueError(f'{c}: 숫자로 입력해 주세요.')
             row[c] = float(row[c])
             if not np.isfinite(row[c]) or row[c] < 0:
-                raise ValueError(f'{c}: expected finite nonnegative number.')
+                raise ValueError(f'{c}: 0 이상의 유한한 숫자를 입력해 주세요.')
             lo, hi = bundle['numeric_ranges'][c]
             if row[c] < lo or row[c] > hi:
                 outside.append(c)
