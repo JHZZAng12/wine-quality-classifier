@@ -1,0 +1,89 @@
+{
+  "task": "wine",
+  "selected_model": "tree_depth_5",
+  "threshold": 0.30000000000000004,
+  "selection_metric": "validation_average_precision",
+  "seed": 42,
+  "split_sizes": {
+    "train": 815,
+    "validation": 272,
+    "test": 272
+  },
+  "test": {
+    "accuracy": 0.875,
+    "precision": 0.5365853658536586,
+    "recall": 0.5945945945945946,
+    "f1": 0.5641025641025641,
+    "roc_auc": 0.7477285796434733,
+    "average_precision": 0.4453029317022602
+  },
+  "confusion_matrix": [
+    [
+      216,
+      19
+    ],
+    [
+      15,
+      22
+    ]
+  ],
+  "classification_report": {
+    "0": {
+      "precision": 0.935064935064935,
+      "recall": 0.9191489361702128,
+      "f1-score": 0.927038626609442,
+      "support": 235.0
+    },
+    "1": {
+      "precision": 0.5365853658536586,
+      "recall": 0.5945945945945946,
+      "f1-score": 0.5641025641025641,
+      "support": 37.0
+    },
+    "accuracy": 0.875,
+    "macro avg": {
+      "precision": 0.7358251504592968,
+      "recall": 0.7568717653824037,
+      "f1-score": 0.745570595356003,
+      "support": 272.0
+    },
+    "weighted avg": {
+      "precision": 0.8808599936648717,
+      "recall": 0.875,
+      "f1-score": 0.8776686475184329,
+      "support": 272.0
+    }
+  },
+  "audit": {
+    "raw_rows": 1599,
+    "rows": 1359,
+    "duplicates_removed": 240,
+    "conflicting_rows_removed": 0,
+    "missing_cells": 0,
+    "positive_rate": 0.13539367181751288,
+    "features": [
+      "fixed acidity",
+      "volatile acidity",
+      "citric acid",
+      "residual sugar",
+      "chlorides",
+      "free sulfur dioxide",
+      "total sulfur dioxide",
+      "density",
+      "pH",
+      "sulphates",
+      "alcohol"
+    ],
+    "source_url": "https://archive.ics.uci.edu/static/public/186/wine%2Bquality.zip",
+    "raw_sha256": "4a402cf041b025d4566d954c3b9ba8635a3a8a01e039005d97d6a710278cf05e"
+  },
+  "convergence_warnings": [],
+  "versions": {
+    "python": "3.12.14",
+    "sklearn": "1.9.1",
+    "pandas": "3.0.6",
+    "numpy": "2.5.4",
+    "matplotlib": "3.11.2",
+    "joblib": "1.6.0"
+  }
+}
